@@ -36,3 +36,15 @@
     transform: rotate(360deg);
   }
 }
+
+.trace {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: trace 5s forwards; /* Adjust time as needed */
+}
+
+@keyframes trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
