@@ -1,9 +1,17 @@
 import './App.css';
-import ExamTimer from "./timer/ExamTimer";
+import {RecoilRoot} from "recoil";
+import {BrowserRouter, Routes, Route} from "react-router-dom";
+import Home from "./pages/home/Home";
 
 function App() {
   return (
-    <ExamTimer/>
+    <RecoilRoot>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home/>}/>
+        </Routes>
+      </BrowserRouter>
+    </RecoilRoot>
   );
 }
 

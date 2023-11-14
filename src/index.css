@@ -5,9 +5,22 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: white;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+html {
+  font-size: 62.5%
+}
+
+/* Use media queries to adjust font size for different viewport widths */
+@media screen and (max-width: 500px) {
+  /* Adjust font size for small screens */
+  html {
+    font-size: 40%;
+  }
 }
