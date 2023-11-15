@@ -35,7 +35,7 @@ const styles = {
   scheduleContainer: {
     display: 'flex',
     flexDirection: 'row',
-    width:'20%',
+    width:'30%',
     alignItems: 'flex-start',
     borderRadius: '8px',
     padding: '20px',
@@ -56,10 +56,14 @@ const styles = {
   },
   subjectName: {
     textAlign: 'left',
+    fontSize: '1.6rem',
+    fontWeight: '800',
     flex: 1,
   },
   subjectDuration: {
     textAlign: 'right',
+    fontSize: '1.6rem',
+    fontWeight: '600',
     flex: 1,
   },
   verticalLine: {
