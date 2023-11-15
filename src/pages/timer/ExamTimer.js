@@ -1,37 +1,64 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { styled } from "@mui/material/styles";
 import { Button } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StopIcon from '@mui/icons-material/Stop';
 import ExamSchedule from "./ExamSchedule";
 
 const subjects = [
-  {id:1, name: 'English', duration: 45 },
-  {id:2, name: 'Math', duration: 60 },
-  // ...other subjects
+  {id: 1, order: 1, name: 'English', duration: 45 * 60 },
+  {id: 2, order: 2, name: 'Math', duration: 60 * 60 },
+  {id: 3, order: 0, name: 'break', duration: 15 * 60 },
+  {id: 4, order: 3, name: 'Reading', duration: 35 * 60 },
+  {id: 5, order: 4, name: 'Science', duration: 35 * 60 },
+  {id: 6, order: 0, name: 'break', duration: 15 * 60 },
+  {id: 7, order: 5, name: 'Writing', duration: 40 * 60 },
 ];
+
 
 export default function ExamTimer() {
   const [activeSubject, setActiveSubject] = useState(subjects[0]);
-  const [timeLeft, setTimeLeft] = useState(activeSubject.duration * 60);
+  const [timeLeft, setTimeLeft] = useState(activeSubject.duration);
+  const [timerOn, setTimerOn] = useState(false)
+
+  const timeRef = useRef(null)
 
   useEffect(() => {
-    const timer = timeLeft > 0 && setInterval(() => setTimeLeft(timeLeft - 1), 1000);
-    return () => clearInterval(timer);
-  }, [timeLeft]);
+    if (timerOn) {
+      timeRef.current = setInterval(() => {
+        setTimeLeft(prevTime => prevTime > 0 ? prevTime - 1 : 0)
+      }, 1000)
+    }
+    else {
+      clearInterval(timeRef.current)
+    }
+  }, [timerOn]);
 
-  const startTimer = () => {
-    // Logic to start the timer
-  };
+  useEffect(() => {
+    clearInterval(timeRef.current)
+    setTimeLeft(activeSubject.duration)
+  }, [activeSubject])
 
-  return(
+  function toggleTimer() {
+    setTimerOn(prevTimerOn => !prevTimerOn)
+  }
+
+  return (
     <TimerBase>
       <TimerDisplay>
-        <SubjectId>#{activeSubject.id}</SubjectId>
+        <SubjectId>#{activeSubject.order}</SubjectId>
         <TSubjectName>{activeSubject.name}</TSubjectName>
         <Time>{formatTime(timeLeft)}</Time>
-        <PlayButton onClick={startTimer}><PlayArrowIcon style={{fontSize:'5rem', color:'white'}}/></PlayButton>
+        <PlayButton onClick={toggleTimer}>
+          {
+            timerOn?
+            <StopIcon style={{ fontSize:'5rem', color:'white'}} />
+            :
+            <PlayArrowIcon style={{fontSize: '5rem', color: 'white'}}/>
+          }
+        </PlayButton>
       </TimerDisplay>
-      <ExamSchedule/>
+      <ExamSchedule subjects={subjects} setActiveSubject={setActiveSubject}/>
     </TimerBase>
   )
 }
@@ -74,26 +101,10 @@ const TSubjectName = styled('div')({
   marginBottom:'1rem',
 });
 
-const SubjectName = styled('div')({
-  fontSize:'2rem',
-});
-
 const Time = styled('div')({
   fontSize: '10rem',
   fontWeight:'700',
 });
 
 const PlayButton = styled(Button)({
-});
-
-const SubjectList = styled('div')({
-  // Styles for the subject list
-});
-
-const Subject = styled('div')({
-  // Styles for each subject
-});
-
-const Duration = styled('div')({
-  // Styles for the duration
 });

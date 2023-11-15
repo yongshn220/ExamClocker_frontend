@@ -1,34 +1,24 @@
 import React, { useState } from 'react';
-
-const subjects = [
-  { name: 'English', duration: 45 },
-  { name: 'Math', duration: 60 },
-  { name: 'break', duration: 15 },
-  { name: 'Reading', duration: 35 },
-  { name: 'Science', duration: 35 },
-  { name: 'break', duration: 15 },
-  { name: 'Writing', duration: 40 },
-];
+import {TimeControllerItemHeight} from "../../util/utils";
 
 const offsetHeight = 0
 
-export default function ExamSchedule() {
+export default function ExamSchedule({subjects, setActiveSubject}) {
   const [circlePosition, setCirclePosition] = useState(offsetHeight);
 
-  // Calculate total height of the subject list based on the number of subjects
-  const totalHeight = subjects.length * 50; // Example: 50px per subject row
+  const totalHeight = subjects.length * TimeControllerItemHeight;
 
-  const handleClick = (index) => {
-    // Calculate new circle position based on the index and height of each subject row
+  function handleClick(index, subject) {
     const newPosition = index * (totalHeight / subjects.length) + offsetHeight;
     setCirclePosition(newPosition);
-  };
+    setActiveSubject(subject)
+  }
 
   return (
     <div style={styles.scheduleContainer}>
       <div style={styles.subjectsContainer}>
         {subjects.map((subject, index) => (
-          <div onClick={() => handleClick(index)} key={subject.name} style={styles.subjectRow}>
+          <div onClick={() => handleClick(index, subject)} key={subject.name} style={styles.subjectRow}>
             <span style={styles.subjectName}>{subject.name}</span>
             <span style={styles.subjectDuration}>{subject.duration} min</span>
           </div>

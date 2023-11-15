@@ -1,6 +1,4 @@
 import {styled} from "@mui/material/styles";
-import {COLOR} from "../../util/utils";
-
 
 export default function HomeHeader() {
   return (

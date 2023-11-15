@@ -4,3 +4,4 @@ export const COLOR = {
 }
 
 
+export const TimeControllerItemHeight = 50
