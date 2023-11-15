@@ -36,6 +36,7 @@ export default function ExamTimer() {
 
   useEffect(() => {
     clearInterval(timeRef.current)
+    setTimerOn(false)
     setTimeLeft(activeSubject.duration)
   }, [activeSubject])
 

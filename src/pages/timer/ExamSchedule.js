@@ -20,7 +20,7 @@ export default function ExamSchedule({subjects, setActiveSubject}) {
         {subjects.map((subject, index) => (
           <div onClick={() => handleClick(index, subject)} key={subject.name} style={styles.subjectRow}>
             <span style={styles.subjectName}>{subject.name}</span>
-            <span style={styles.subjectDuration}>{subject.duration} min</span>
+            <span style={styles.subjectDuration}>{subject.duration / 60} min</span>
           </div>
         ))}
       </div>
