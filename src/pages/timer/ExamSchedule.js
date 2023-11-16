@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {TimeControllerItemHeight} from "../../util/utils";
 import {useRecoilState} from "recoil";
 import {curSubjectIndexAtom} from "../../recoil/timerState";
@@ -48,7 +48,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'row',
     width:'30%',
-    alignItems: 'flex-start',
+    alignItems: 'flex-components',
     borderRadius: '8px',
     padding: '20px',
   },

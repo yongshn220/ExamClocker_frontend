@@ -3,7 +3,7 @@ import {styled} from "@mui/material/styles";
 export default function HomeHeader() {
   return (
     <Base>
-      Exam Timer
+      ExamTic
     </Base>
   )
 }
