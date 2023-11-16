@@ -1,31 +1,43 @@
-import React, { useState } from 'react';
+import React, {useMemo, useState} from 'react';
 import {TimeControllerItemHeight} from "../../util/utils";
+import {useRecoilState} from "recoil";
+import {curSubjectIndexAtom} from "../../recoil/timerState";
 
 const offsetHeight = 0
 
-export default function ExamSchedule({subjects, setActiveSubject}) {
-  const [circlePosition, setCirclePosition] = useState(offsetHeight);
-
+export default function ExamSchedule({subjects}) {
+  const [curSubjectIndex, setCurSubjectIndex] = useRecoilState(curSubjectIndexAtom);
   const totalHeight = subjects.length * TimeControllerItemHeight;
 
-  function handleClick(index, subject) {
-    const newPosition = index * (totalHeight / subjects.length) + offsetHeight;
-    setCirclePosition(newPosition);
-    setActiveSubject(subject)
+  const circleHeight = useMemo(() => {
+    return curSubjectIndex * (totalHeight / subjects.length) + offsetHeight;
+  }, [totalHeight, subjects.length, curSubjectIndex])
+
+  function handleClick(index) {
+    setCurSubjectIndex(index)
+  }
+
+  function getDurationText(duration) {
+    if (duration >= 60) {
+      return `${Math.round(duration / 60)} min`
+    }
+    else {
+      return `${duration} sec`
+    }
   }
 
   return (
     <div style={styles.scheduleContainer}>
       <div style={styles.subjectsContainer}>
         {subjects.map((subject, index) => (
-          <div onClick={() => handleClick(index, subject)} key={subject.name} style={styles.subjectRow}>
+          <div onClick={() => handleClick(index)} key={subject.name} style={styles.subjectRow}>
             <span style={styles.subjectName}>{subject.name}</span>
-            <span style={styles.subjectDuration}>{subject.duration / 60} min</span>
+            <span style={styles.subjectDuration}>{getDurationText(subject.duration)}</span>
           </div>
         ))}
       </div>
       <div style={{ ...styles.verticalLine, height: `${totalHeight - 50}px` }}>
-        <div style={{ ...styles.circle, top: `${circlePosition}px` }} />
+        <div style={{ ...styles.circle, top: `${circleHeight}px` }} />
       </div>
     </div>
   );

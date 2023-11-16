@@ -1,27 +1,22 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import { styled } from "@mui/material/styles";
 import { Button } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import ExamSchedule from "./ExamSchedule";
-
-const subjects = [
-  {id: 1, order: 1, name: 'English', duration: 45 * 60 },
-  {id: 2, order: 2, name: 'Math', duration: 60 * 60 },
-  {id: 3, order: 0, name: 'break', duration: 15 * 60 },
-  {id: 4, order: 3, name: 'Reading', duration: 35 * 60 },
-  {id: 5, order: 4, name: 'Science', duration: 35 * 60 },
-  {id: 6, order: 0, name: 'break', duration: 15 * 60 },
-  {id: 7, order: 5, name: 'Writing', duration: 40 * 60 },
-];
-
+import {ACTSubjects} from '../../util/examSubjects'
+import {curSubjectIndexAtom, selectedExamAtom} from "../../recoil/timerState";
+import {useRecoilState, useRecoilValue} from "recoil";
 
 export default function ExamTimer() {
-  const [activeSubject, setActiveSubject] = useState(subjects[0]);
-  const [timeLeft, setTimeLeft] = useState(activeSubject.duration);
+  const subjects = useRecoilValue(selectedExamAtom);
+  const [curSubjectIndex, setCurSubjectIndex] = useRecoilState(curSubjectIndexAtom);
+  const [timeLeft, setTimeLeft] = useState(subjects[curSubjectIndex].duration);
   const [timerOn, setTimerOn] = useState(false)
 
   const timeRef = useRef(null)
+
+  const curSubject = useMemo(() => subjects[curSubjectIndex], [subjects, curSubjectIndex])
 
   useEffect(() => {
     if (timerOn) {
@@ -37,8 +32,26 @@ export default function ExamTimer() {
   useEffect(() => {
     clearInterval(timeRef.current)
     setTimerOn(false)
-    setTimeLeft(activeSubject.duration)
-  }, [activeSubject])
+    setTimeLeft(curSubject.duration)
+  }, [curSubject])
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      startNextSubject()
+    }
+  }, [timeLeft])
+
+
+  function startNextSubject() {
+    if (curSubjectIndex >= subjects.length - 1) {
+      return
+    }
+    setCurSubjectIndex(curSubjectIndex + 1)
+  }
+
+  function changeCurSubject(index) {
+    setCurSubjectIndex(index)
+  }
 
   function toggleTimer() {
     setTimerOn(prevTimerOn => !prevTimerOn)
@@ -46,9 +59,12 @@ export default function ExamTimer() {
 
   return (
     <TimerBase>
+      <div style={{display:'flex', flex:'0 0 5rem', alignItems:'center', justifyContent:'center', width:'100%'}}>
+        <div style={{flex:1, textAlign:'center', fontSize:'1.6rem', fontWeight:'800'}}>ACT</div>
+      </div>
       <TimerDisplay>
-        <SubjectId>#{activeSubject.order}</SubjectId>
-        <TSubjectName>{activeSubject.name}</TSubjectName>
+        <SubjectId>#{curSubject.order}</SubjectId>
+        <TSubjectName>{curSubject.name}</TSubjectName>
         <Time>{formatTime(timeLeft)}</Time>
         <PlayButton onClick={toggleTimer}>
           {
@@ -59,7 +75,7 @@ export default function ExamTimer() {
           }
         </PlayButton>
       </TimerDisplay>
-      <ExamSchedule subjects={subjects} setActiveSubject={setActiveSubject}/>
+      <ExamSchedule subjects={ACTSubjects} changeCurSubject={changeCurSubject}/>
     </TimerBase>
   )
 }
@@ -76,7 +92,7 @@ const TimerBase = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent:'cneter',
+  justifyContent:'center',
 });
 
 const TimerDisplay = styled('div')({
@@ -86,7 +102,7 @@ const TimerDisplay = styled('div')({
   alignItems:'center',
   width: '80%',
   height: '40vh',
-  marginTop: '6rem',
+  marginTop: '1rem',
   borderRadius: '5px',
   backgroundColor:'rgba(255,255,255,0.1)'
 });
