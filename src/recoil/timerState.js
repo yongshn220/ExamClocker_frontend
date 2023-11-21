@@ -1,13 +1,13 @@
 import {atom} from "recoil";
-import {ACTSubjects} from "../util/examSubjects";
+import {ACTSchedules} from "../util/examSubjects";
 
 
 export const selectedExamAtom = atom({
   key: 'selectedExamAtom',
-  default: ACTSubjects
+  default: ACTSchedules
 })
 
-export const curSubjectIndexAtom = atom({
-  key: 'curSubjectIndexAtom',
+export const selectedTaskIdAtom = atom({
+  key: 'selectedTaskIdAtom',
   default: 0,
 })

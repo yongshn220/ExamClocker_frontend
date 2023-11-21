@@ -5,3 +5,5 @@ export const COLOR = {
 
 
 export const TimeControllerItemHeight = 50
+
+export const ContentWidthDesktop = '600px'

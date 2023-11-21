@@ -1,5 +1,5 @@
 import {styled} from "@mui/material/styles";
-import {COLOR} from "../../util/utils";
+import {COLOR, ContentWidthDesktop} from "../../util/utils";
 
 
 export default function LayoutBase({children}) {
@@ -26,11 +26,18 @@ const Base = styled('div')({
 const Content = styled('div')({
   display: 'flex',
   flexDirection: 'column',
-  flex: '0 0 60rem',
+  // Default flex basis for desktop
+  flex: `0 0 ${ContentWidthDesktop}`,
+  '@media (max-width: 600px)': {
+    // Flex basis for mobile
+    flex: '0 0 100%',
+  },
 });
 
 const Side = styled('div')({
-  flexGrow: 1,
-  flexBasis: '33.33%',
-  flexShrink: 1,
+  flex: 1,
+  '@media (max-width: 600px)': {
+    // Hide or minimize the side components on mobile
+    display: 'none',
+  },
 });
