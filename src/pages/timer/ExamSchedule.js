@@ -54,14 +54,25 @@ const Base = styled('div')({
   flexDirection: 'row',
   alignItems: 'center',
   bottom:0,
+  marginBottom:'1rem',
   width: ContentWidthDesktop,
   height: '18vh',
   borderRadius: '8px',
   overflowX: "scroll",
-  // Hide scrollbar for WebKit browsers
+
+  // Optional: Simple custom scrollbar for WebKit browsers
   '&::-webkit-scrollbar': {
-    display: 'none',
+    height: '6px', // Smaller height for a less obtrusive scrollbar
+    backgroundColor: 'rgba(0,0,0,0.1)', // Subtle background color
   },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgba(0,0,0,0.2)', // Subtle thumb color
+    borderRadius: '3px', // Rounded corners for the thumb
+  },
+
+  // Optional: Simple custom scrollbar for Firefox
+  scrollbarWidth: 'thin',
+  scrollbarColor: 'rgba(0,0,0,0.2) rgba(0,0,0,0.1)', // Subtle colors
 });
 
 
