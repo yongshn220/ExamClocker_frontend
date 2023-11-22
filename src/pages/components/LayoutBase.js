@@ -24,6 +24,7 @@ const Base = styled('div')({
 });
 
 const Content = styled('div')({
+  position:'relative',
   display: 'flex',
   flexDirection: 'column',
   // Default flex basis for desktop

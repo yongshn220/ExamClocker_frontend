@@ -59,7 +59,6 @@ export default function ExamTimer() {
         <ExamTitle>ACT</ExamTitle>
       </ExamTitleBox>
       <TimerDisplay>
-        <SubjectId>#{curSubject.order}</SubjectId>
         <TSubjectName>{curSubject.name}</TSubjectName>
         <Time>{formatTime(timeLeft)}</Time>
         <PlayButton onClick={toggleTimer}>
