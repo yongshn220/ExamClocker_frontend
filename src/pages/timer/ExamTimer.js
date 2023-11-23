@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useMemo} from 'react';
+import React, {useEffect, useRef, useMemo, useCallback, useState} from 'react';
 import { styled } from "@mui/material/styles";
 import { Button } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -7,50 +7,73 @@ import ExamSchedule from "./ExamSchedule";
 import {ACTSchedules} from '../../util/examSubjects'
 import {selectedTaskIdAtom, selectedExamAtom} from "../../recoil/timerState";
 import {useRecoilState, useRecoilValue} from "recoil";
+import {optAutoStartNextAtom} from "../../recoil/settingOptionState";
+
+const Action = {
+  SET_TIME_LEFT: "set_time_left",
+  TOGGLE_TIMER: "toggle_timer",
+  ACTIVE_SUBJECT_CHANGE: "active_subject_chane",
+}
 
 export default function ExamTimer() {
   const subjects = useRecoilValue(selectedExamAtom);
-  const [selectedTaskId, setSelectedTaskId] = useRecoilState(selectedTaskIdAtom);
-  const [timeLeft, setTimeLeft] = useState(subjects[selectedTaskId].duration);
-  const [timerOn, setTimerOn] = useState(false)
+  const optAutoStartNext = useRecoilValue(optAutoStartNextAtom)
+  const [selectedSubjectId, setSelectedSubjectId] = useRecoilState(selectedTaskIdAtom);
+
+  const [timerState, setTimerState] = useState({
+    timeLeft: 0,
+    timerOn: false,
+  });
 
   const timeRef = useRef(null)
+  const activeSubject = useMemo(() => subjects[selectedSubjectId], [subjects, selectedSubjectId])
 
-  const curSubject = useMemo(() => subjects[selectedTaskId], [subjects, selectedTaskId])
+  const { timeLeft, timerOn } = timerState
 
+  const reducer = useCallback((action) => {
+    switch(action.type) {
+      case Action.SET_TIME_LEFT:
+        return setTimerState(prev => ({...prev, timeLeft: prev.timeLeft - 1}));
+
+      case Action.TOGGLE_TIMER:
+        return setTimerState(prev => ({...prev, timerOn: !prev.timerOn}));
+
+      case Action.ACTIVE_SUBJECT_CHANGE:
+        return setTimerState(prev => {
+          const timerOn =  (prev.timeLeft < 0)? optAutoStartNext : false
+          return {...prev, timeLeft: activeSubject.duration, timerOn: timerOn}
+        })
+
+      default: return;
+    }
+  }, [activeSubject.duration, optAutoStartNext])
+
+  // On Timer On or Off
   useEffect(() => {
     if (timerOn) {
       timeRef.current = setInterval(() => {
-        setTimeLeft(prevTime => prevTime > 0 ? prevTime - 1 : 0)
-      }, 1000)
+        reducer({ type: Action.SET_TIME_LEFT, payload: null})
+      }, 1000);
     }
     else {
-      clearInterval(timeRef.current)
+      clearInterval(timeRef.current);
     }
-  }, [timerOn]);
+    return () => clearInterval(timeRef.current);
+  }, [reducer, timerOn]);
 
+  // On Time Over
   useEffect(() => {
-    clearInterval(timeRef.current)
-    setTimerOn(false)
-    setTimeLeft(curSubject.duration)
-  }, [curSubject])
+    if (timeLeft < 0)
+      setSelectedSubjectId((prev) => (prev < subjects.length-1)? prev+1 : prev)
+  }, [subjects.length, setSelectedSubjectId, timeLeft]);
 
+  // On Active Subject Change
   useEffect(() => {
-    if (timeLeft <= 0) {
-      startNextSubject()
-    }
-  }, [timeLeft])
-
-
-  function startNextSubject() {
-    if (selectedTaskId >= subjects.length - 1) {
-      return
-    }
-    setSelectedTaskId(selectedTaskId + 1)
-  }
+    reducer({type: Action.ACTIVE_SUBJECT_CHANGE, payload: null})
+  }, [reducer, activeSubject])
 
   function toggleTimer() {
-    setTimerOn(prevTimerOn => !prevTimerOn)
+    reducer({type: Action.TOGGLE_TIMER, payload: null})
   }
 
   return (
@@ -59,7 +82,7 @@ export default function ExamTimer() {
         <ExamTitle>ACT</ExamTitle>
       </ExamTitleBox>
       <TimerDisplay>
-        <TSubjectName>{curSubject.name}</TSubjectName>
+        <TSubjectName>{activeSubject.name}</TSubjectName>
         <Time>{formatTime(timeLeft)}</Time>
         <PlayButton onClick={toggleTimer}>
           {
@@ -76,6 +99,7 @@ export default function ExamTimer() {
 }
 
 const formatTime = (time) => {
+  if (time < 0) time = 0
   let minutes = Math.floor(time / 60);
   let seconds = time % 60;
   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
