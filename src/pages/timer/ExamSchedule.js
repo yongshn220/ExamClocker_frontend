@@ -9,8 +9,6 @@ import ScheduleEnd from "./ScheduleEnd";
 import {useRecoilValue} from "recoil";
 import {selectedTaskIdAtom} from "../../recoil/timerState";
 
-const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-
 export default function ExamSchedule({schedules}) {
   const selectedSubjectId = useRecoilValue(selectedTaskIdAtom)
   const [startX, setStartX] = useState(0);
@@ -29,7 +27,6 @@ export default function ExamSchedule({schedules}) {
   useEffect(() => {
     scrollToElement(selectedSubjectId);
   }, [selectedSubjectId, schedules]);
-
 
   function handleWheel(e) {
     if (baseRef.current) {

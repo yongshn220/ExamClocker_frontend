@@ -2,6 +2,7 @@ import {styled} from "@mui/material/styles";
 import SettingsIcon from '@mui/icons-material/Settings';
 import {useRecoilState} from "recoil";
 import {activatedModalAtom, ModalType} from "../../recoil/modalState";
+import {COLOR} from "../../util/utils"
 
 export default function HomeHeader() {
   const [activatedModalType, setActivatedModalType] = useRecoilState(activatedModalAtom)
@@ -17,8 +18,11 @@ export default function HomeHeader() {
 
   return (
     <Base>
+      <div style={{ borderRadius:'100px', width:'2rem', height:'2rem', marginRight:'0.5rem', padding:'0.2rem'}}>
+        <img src="/ExamticIconWhite.png"  alt="Description" style={{width: '100%', height: '100%', objectFit: 'cover'}}/>
+      </div>
       <div style={{flex:1}}>
-        ExamTic
+        ExamTicon.
       </div>
       <div style={{flex:0}}>
         <SettingsIcon onClick={handleSettingClick} sx={{fontSize:'2rem', cursor:'pointer'}}/>
