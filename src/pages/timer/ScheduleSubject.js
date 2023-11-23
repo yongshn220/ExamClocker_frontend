@@ -1,11 +1,14 @@
 import React from "react";
 import {styled} from "@mui/material/styles";
-import {useSetRecoilState} from "recoil";
+import {useRecoilState} from "recoil";
 import {selectedTaskIdAtom} from "../../recoil/timerState";
+import {COLOR} from "../../util/utils";
 
 
 export default function ScheduleSubject({schedule}) {
-  const setSelectedTaskId = useSetRecoilState(selectedTaskIdAtom)
+  const [selectedTaskId, setSelectedTaskId] = useRecoilState(selectedTaskIdAtom)
+
+  const bgColor = (selectedTaskId === schedule.id)? COLOR.transparentWhite80 : COLOR.transparentWhite30
 
   function getDurationText(duration) {
     if (duration >= 60) {
@@ -21,7 +24,7 @@ export default function ScheduleSubject({schedule}) {
   }
 
   return (
-    <Base onClick={handleClick}>
+    <Base onClick={handleClick} bgColor={bgColor}>
       <SubjectName>
         {schedule.name}
       </SubjectName>
@@ -33,7 +36,7 @@ export default function ScheduleSubject({schedule}) {
 }
 
 
-const Base = styled('div')({
+const Base = styled('div')(({bgColor}) => ({
   display:'flex',
   flexDirection:'column',
   justifyContent:'center',
@@ -43,10 +46,10 @@ const Base = styled('div')({
   marginLeft:'1rem',
   marginRight:'1rem',
   borderRadius:'3px',
-  backgroundColor:'white',
+  backgroundColor: bgColor,
   color:'#151b42',
   cursor:'pointer',
-});
+}));
 
 const SubjectName = styled('div')({
   display:'flex',

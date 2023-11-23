@@ -13,7 +13,7 @@ const formatTime = (time) => {
   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 };
 
-export function TimerDisplay({reducer, action, activeSubject, timeLeft, timerOn}) {
+export function TimerDisplay({reducer, action, activeSubject, timeLeft, timerOn, isReadyPhase}) {
   function toggleTimer() {
     reducer({type: action.TOGGLE_TIMER, payload: null})
   }
@@ -27,9 +27,10 @@ export function TimerDisplay({reducer, action, activeSubject, timeLeft, timerOn}
   }
 
   function TaskTimer() {
+    const SubjectName = (isReadyPhase)? `Ready for ${activeSubject.name}` : activeSubject.name
     return (
       <>
-        <TSubjectName>{activeSubject.name}</TSubjectName>
+        <TSubjectName>{SubjectName}</TSubjectName>
         <Time>{formatTime(timeLeft)}</Time>
         <PlayButton onClick={toggleTimer}>
           {

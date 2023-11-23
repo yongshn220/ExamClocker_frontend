@@ -4,26 +4,39 @@ import ExamSchedule from "./ExamSchedule";
 import {ACTSchedules, TaskType} from '../../util/examSubjects'
 import {selectedTaskIdAtom, selectedExamAtom} from "../../recoil/timerState";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {optAutoStartNextAtom} from "../../recoil/settingOptionState";
+import {optAutoStartNextAtom, optReadyTimeAtom} from "../../recoil/settingOptionState";
 import {TimerDisplay} from "./TimerDisplay";
 
 const Action = {
-  SET_TIME_LEFT: "set_time_left",
+  TICK_TIME_LEFT: "tick_time_left",
+  TICK_READY_TIME_LEFT: "tick_ready_time_left",
   TOGGLE_TIMER: "toggle_timer",
   NEXT_SUBJECT: "next_subject",
   ACTIVE_SUBJECT_CHANGE: "active_subject_chane",
 }
 
+
+function getNextTimerOnState(type, timeLeft, subjectId, optAutoStartNext) {
+  if (type === TaskType.PREP)
+    return true
+  if (timeLeft < 0)
+    return optAutoStartNext
+  return false
+}
+
 export default function ExamTimer() {
   const subjects = useRecoilValue(selectedExamAtom);
   const optAutoStartNext = useRecoilValue(optAutoStartNextAtom)
+  const optReadyTime = useRecoilValue(optReadyTimeAtom)
   const [selectedSubjectId, setSelectedSubjectId] = useRecoilState(selectedTaskIdAtom);
 
   const [timerState, setTimerState] = useState({
     timeLeft: 0,
     timerOn: false,
+    readyTimeLeft: optReadyTime,
+    isReadyPhase: optReadyTime > 0,
   });
-  const { timeLeft, timerOn } = timerState
+  const { timeLeft, timerOn, readyTimeLeft, isReadyPhase } = timerState
 
   const timeRef = useRef(null)
   const activeSubject = useMemo(() => subjects[selectedSubjectId], [subjects, selectedSubjectId])
@@ -31,52 +44,62 @@ export default function ExamTimer() {
   const reducer = useCallback((action) => {
     const payload = action.payload
     switch(action.type) {
-      case Action.SET_TIME_LEFT:
-        console.log(1)
+      case Action.TICK_TIME_LEFT:
         return setTimerState(prev => ({...prev, timeLeft: prev.timeLeft - 1}));
 
+      case Action.TICK_READY_TIME_LEFT:
+        return setTimerState(prev => ({...prev, readyTimeLeft: prev.readyTimeLeft - 1}))
+
       case Action.TOGGLE_TIMER:
-        console.log(2)
         return setTimerState(prev => ({...prev, timerOn: !prev.timerOn}));
 
       case Action.NEXT_SUBJECT:
-        console.log(3)
         return setSelectedSubjectId((prev) => (prev < subjects.length-1)? prev+1 : prev)
 
       case Action.ACTIVE_SUBJECT_CHANGE:
-        console.log(4)
         return setTimerState(prev => {
-          let activeSubject = payload.activeSubject
-
-          let timerOn;
-          if (activeSubject.type === TaskType.PREP)                     timerOn = true
-          else if (prev.timeLeft < 0 && activeSubject.subjectId === 1)  timerOn = true
-          else if (prev.timeLeft < 0)                                   timerOn = optAutoStartNext
-          else                                                          timerOn = false
-
-          return {...prev, timeLeft: activeSubject.duration, timerOn: timerOn}
+          const activeSubject = payload.activeSubject
+          const timerOn = getNextTimerOnState(activeSubject.type, prev.timeLeft, activeSubject.subjectId, optAutoStartNext)
+          const isReadyPhase = (activeSubject.type === TaskType.SUBJECT && optReadyTime>0)
+          return {...prev, timeLeft: activeSubject.duration, timerOn: timerOn, readyTimeLeft: optReadyTime, isReadyPhase: isReadyPhase}
         })
 
       default: return;
     }
-  }, [optAutoStartNext, setSelectedSubjectId, subjects.length])
+  }, [optAutoStartNext, setSelectedSubjectId, subjects.length, optReadyTime])
 
   // On Timer On or Off
   useEffect(() => {
-    if (timerOn && timeLeft > -1) {
+    if (timerOn && isReadyPhase && readyTimeLeft > 0) {
       timeRef.current = setInterval(() => {
-        reducer({ type: Action.SET_TIME_LEFT, payload: null})
+        reducer({ type: Action.TICK_READY_TIME_LEFT, payload: null})
       }, 1000);
     }
-    else {
-      clearInterval(timeRef.current);
+    else if (timerOn && timeLeft > -1) {
+      timeRef.current = setInterval(() => {
+        reducer({ type: Action.TICK_TIME_LEFT, payload: null})
+      }, 1000);
     }
+    else clearInterval(timeRef.current);
+
     return () => clearInterval(timeRef.current);
-  }, [reducer, timerOn]);
+  }, [isReadyPhase, readyTimeLeft, timeLeft, reducer, timerOn]);
+
+  // Switch to exam timer when preparation time is over
+  useEffect(() => {
+    if (isReadyPhase && readyTimeLeft <= 0) {
+      setTimerState(prev => ({
+        ...prev,
+        isReadyPhase: false,
+        timeLeft: activeSubject.duration,
+        timerOn: true
+      }));
+    }
+  }, [readyTimeLeft, isReadyPhase, activeSubject.duration]);
 
   // On Time Over
   useEffect(() => {
-    if (timeLeft < 0)
+    if (timeLeft < 0 && activeSubject.type !== TaskType.BEGIN)
       reducer({type: Action.NEXT_SUBJECT, payload: null})
   }, [reducer, timeLeft]);
 
@@ -85,13 +108,19 @@ export default function ExamTimer() {
     reducer({type: Action.ACTIVE_SUBJECT_CHANGE, payload: {activeSubject: activeSubject}})
   }, [reducer, activeSubject])
 
-
   return (
     <TimerBase>
       <ExamTitleBox>
         <ExamTitle>ACT</ExamTitle>
       </ExamTitleBox>
-      <TimerDisplay reducer={reducer} action={Action} activeSubject={activeSubject} timeLeft={timeLeft} timerOn={timerOn} />
+      <TimerDisplay
+        reducer={reducer}
+        action={Action}
+        activeSubject={activeSubject}
+        timeLeft={isReadyPhase ? readyTimeLeft : timeLeft}
+        timerOn={timerOn}
+        isReadyPhase={isReadyPhase}
+      />
       <ExamSchedule schedules={ACTSchedules}/>
     </TimerBase>
   )
