@@ -1,17 +1,16 @@
 import React, {useEffect, useRef, useMemo, useCallback, useState} from 'react';
 import { styled } from "@mui/material/styles";
-import { Button } from "@mui/material";
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import StopIcon from '@mui/icons-material/Stop';
 import ExamSchedule from "./ExamSchedule";
-import {ACTSchedules} from '../../util/examSubjects'
+import {ACTSchedules, TaskType} from '../../util/examSubjects'
 import {selectedTaskIdAtom, selectedExamAtom} from "../../recoil/timerState";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {optAutoStartNextAtom} from "../../recoil/settingOptionState";
+import {TimerDisplay} from "./TimerDisplay";
 
 const Action = {
   SET_TIME_LEFT: "set_time_left",
   TOGGLE_TIMER: "toggle_timer",
+  NEXT_SUBJECT: "next_subject",
   ACTIVE_SUBJECT_CHANGE: "active_subject_chane",
 }
 
@@ -24,33 +23,47 @@ export default function ExamTimer() {
     timeLeft: 0,
     timerOn: false,
   });
+  const { timeLeft, timerOn } = timerState
 
   const timeRef = useRef(null)
   const activeSubject = useMemo(() => subjects[selectedSubjectId], [subjects, selectedSubjectId])
 
-  const { timeLeft, timerOn } = timerState
-
   const reducer = useCallback((action) => {
+    const payload = action.payload
     switch(action.type) {
       case Action.SET_TIME_LEFT:
+        console.log(1)
         return setTimerState(prev => ({...prev, timeLeft: prev.timeLeft - 1}));
 
       case Action.TOGGLE_TIMER:
+        console.log(2)
         return setTimerState(prev => ({...prev, timerOn: !prev.timerOn}));
 
+      case Action.NEXT_SUBJECT:
+        console.log(3)
+        return setSelectedSubjectId((prev) => (prev < subjects.length-1)? prev+1 : prev)
+
       case Action.ACTIVE_SUBJECT_CHANGE:
+        console.log(4)
         return setTimerState(prev => {
-          const timerOn =  (prev.timeLeft < 0)? optAutoStartNext : false
+          let activeSubject = payload.activeSubject
+
+          let timerOn;
+          if (activeSubject.type === TaskType.PREP)                     timerOn = true
+          else if (prev.timeLeft < 0 && activeSubject.subjectId === 1)  timerOn = true
+          else if (prev.timeLeft < 0)                                   timerOn = optAutoStartNext
+          else                                                          timerOn = false
+
           return {...prev, timeLeft: activeSubject.duration, timerOn: timerOn}
         })
 
       default: return;
     }
-  }, [activeSubject.duration, optAutoStartNext])
+  }, [optAutoStartNext, setSelectedSubjectId, subjects.length])
 
   // On Timer On or Off
   useEffect(() => {
-    if (timerOn) {
+    if (timerOn && timeLeft > -1) {
       timeRef.current = setInterval(() => {
         reducer({ type: Action.SET_TIME_LEFT, payload: null})
       }, 1000);
@@ -64,46 +77,25 @@ export default function ExamTimer() {
   // On Time Over
   useEffect(() => {
     if (timeLeft < 0)
-      setSelectedSubjectId((prev) => (prev < subjects.length-1)? prev+1 : prev)
-  }, [subjects.length, setSelectedSubjectId, timeLeft]);
+      reducer({type: Action.NEXT_SUBJECT, payload: null})
+  }, [reducer, timeLeft]);
 
   // On Active Subject Change
   useEffect(() => {
-    reducer({type: Action.ACTIVE_SUBJECT_CHANGE, payload: null})
+    reducer({type: Action.ACTIVE_SUBJECT_CHANGE, payload: {activeSubject: activeSubject}})
   }, [reducer, activeSubject])
 
-  function toggleTimer() {
-    reducer({type: Action.TOGGLE_TIMER, payload: null})
-  }
 
   return (
     <TimerBase>
       <ExamTitleBox>
         <ExamTitle>ACT</ExamTitle>
       </ExamTitleBox>
-      <TimerDisplay>
-        <TSubjectName>{activeSubject.name}</TSubjectName>
-        <Time>{formatTime(timeLeft)}</Time>
-        <PlayButton onClick={toggleTimer}>
-          {
-            timerOn?
-            <StopIcon style={{ fontSize:'5rem', color:'white'}} />
-            :
-            <PlayArrowIcon style={{fontSize: '5rem', color: 'white'}}/>
-          }
-        </PlayButton>
-      </TimerDisplay>
+      <TimerDisplay reducer={reducer} action={Action} activeSubject={activeSubject} timeLeft={timeLeft} timerOn={timerOn} />
       <ExamSchedule schedules={ACTSchedules}/>
     </TimerBase>
   )
 }
-
-const formatTime = (time) => {
-  if (time < 0) time = 0
-  let minutes = Math.floor(time / 60);
-  let seconds = time % 60;
-  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-};
 
 // Styled components here
 const TimerBase = styled('div')({
@@ -111,18 +103,6 @@ const TimerBase = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-});
-
-const TimerDisplay = styled('div')({
-  display:'flex',
-  flexDirection:'column',
-  justifyContent:'center',
-  alignItems:'center',
-  width: '80%',
-  height: '40vh',
-  marginTop: '2rem',
-  borderRadius: '5px',
-  backgroundColor:'rgba(255,255,255,0.1)'
 });
 
 const ExamTitleBox = styled('div')({
@@ -142,22 +122,3 @@ const ExamTitle = styled('div')({
   borderRadius: '1rem',
   padding: '1rem',
 })
-
-const SubjectId = styled('div')({
-  fontSize:'1rem',
-});
-
-
-const TSubjectName = styled('div')({
-  fontSize:'2rem',
-  fontWeight:'700',
-  marginBottom:'1rem',
-});
-
-const Time = styled('div')({
-  fontSize: '10rem',
-  fontWeight:'700',
-});
-
-const PlayButton = styled(Button)({
-});

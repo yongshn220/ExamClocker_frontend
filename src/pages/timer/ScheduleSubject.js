@@ -4,7 +4,7 @@ import {useSetRecoilState} from "recoil";
 import {selectedTaskIdAtom} from "../../recoil/timerState";
 
 
-export default function ScheduleItem({schedule}) {
+export default function ScheduleSubject({schedule}) {
   const setSelectedTaskId = useSetRecoilState(selectedTaskIdAtom)
 
   function getDurationText(duration) {

@@ -1,9 +1,12 @@
 import React, {useRef, useState} from 'react';
 import {ContentWidthDesktop} from "../../util/utils";
 import {styled} from "@mui/material/styles";
-import ScheduleItem from "./ScheduleItem";
+import ScheduleSubject from "./ScheduleSubject";
 import ScheduleBreak from "./ScheduleBreak";
 import {TaskType} from "../../util/examSubjects";
+import {Task} from "@mui/icons-material";
+import ScheduleBegin from "./ScheduleBegin";
+import ScheduleEnd from "./ScheduleEnd";
 
 
 export default function ExamSchedule({schedules}) {
@@ -40,9 +43,18 @@ export default function ExamSchedule({schedules}) {
           onTouchMove={handleTouchMove}
     >
       {
-        schedules.map(schedule => (
-          (schedule.type === TaskType.SUBJECT)? <ScheduleItem schedule={schedule} /> : <ScheduleBreak schedule={schedule} />
-        ))
+        schedules.map(schedule => {
+          if (schedule.type === TaskType.BEGIN)
+            return <ScheduleBegin schedule={schedule} />
+          if (schedule.type === TaskType.PREP)
+            return <ScheduleBreak schedule={schedule}/>
+          if (schedule.type === TaskType.SUBJECT)
+            return <ScheduleSubject schedule={schedule}/>
+          if (schedule.type === TaskType.BREAK)
+            return <ScheduleBreak schedule={schedule}/>
+          else
+            return <ScheduleEnd schedule={schedule}/>
+        })
       }
     </Base>
   );
