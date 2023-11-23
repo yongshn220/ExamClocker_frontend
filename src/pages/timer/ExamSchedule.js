@@ -22,7 +22,7 @@ export default function ExamSchedule({schedules}) {
   const scrollToElement = (index) => {
     const element = scheduleRefs.current[index];
     if (element && baseRef.current) {
-      element.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+      element.scrollIntoView({ behavior: 'smooth', inline: 'center' });
     }
   };
 

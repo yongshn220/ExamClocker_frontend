@@ -26,7 +26,6 @@ export default ScheduleBegin
 const Base = styled('div')(({bgColor}) => ({
   height:'70%',
   aspectRatio: '0.2/1',
-  marginLeft:'1rem',
   marginRight:'1rem',
   borderRadius:'3px',
   backgroundColor: bgColor,
