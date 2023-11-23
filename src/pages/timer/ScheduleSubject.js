@@ -5,7 +5,7 @@ import {selectedTaskIdAtom} from "../../recoil/timerState";
 import {COLOR} from "../../util/utils";
 
 
-export default function ScheduleSubject({schedule}) {
+export const ScheduleSubject = React.forwardRef(({ schedule }, ref) => {
   const [selectedTaskId, setSelectedTaskId] = useRecoilState(selectedTaskIdAtom)
 
   const bgColor = (selectedTaskId === schedule.id)? COLOR.transparentWhite80 : COLOR.transparentWhite30
@@ -24,7 +24,7 @@ export default function ScheduleSubject({schedule}) {
   }
 
   return (
-    <Base onClick={handleClick} bgColor={bgColor}>
+    <Base ref={ref} onClick={handleClick} bgColor={bgColor}>
       <SubjectName>
         {schedule.name}
       </SubjectName>
@@ -33,7 +33,9 @@ export default function ScheduleSubject({schedule}) {
       </SubjectDuration>
     </Base>
   )
-}
+})
+
+export default ScheduleSubject
 
 
 const Base = styled('div')(({bgColor}) => ({

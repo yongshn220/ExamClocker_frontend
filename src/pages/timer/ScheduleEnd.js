@@ -5,7 +5,7 @@ import {selectedTaskIdAtom} from "../../recoil/timerState";
 import {COLOR} from "../../util/utils";
 
 
-export default function ScheduleEnd({schedule}) {
+export const ScheduleEnd = React.forwardRef(({ schedule }, ref) => {
   const [selectedTaskId, setSelectedTaskId] = useRecoilState(selectedTaskIdAtom)
 
   const bgColor = (selectedTaskId === schedule.id)? COLOR.transparentWhite80 : COLOR.transparentWhite30
@@ -15,10 +15,12 @@ export default function ScheduleEnd({schedule}) {
   }
 
   return (
-    <Base onClick={handleClick} bgColor={bgColor}>
+    <Base ref={ref} onClick={handleClick} bgColor={bgColor}>
     </Base>
   )
-}
+})
+
+export default ScheduleEnd
 
 const Base = styled('div')(({bgColor}) => ({
   height:'70%',

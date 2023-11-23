@@ -41,7 +41,6 @@ export default function ExamTimer() {
   const activeSubject = useMemo(() => subjects[selectedSubjectId], [subjects, selectedSubjectId])
 
   const reducer = useCallback((action) => {
-    console.log("reducer", action)
     const payload = action.payload
     switch(action.type) {
       case Action.TICK_TIME_LEFT:
