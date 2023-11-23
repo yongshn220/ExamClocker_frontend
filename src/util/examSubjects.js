@@ -11,7 +11,7 @@ export const TaskType = {
 }
 
 export const ACTSchedules = [
-  {id: 0, type: TaskType.BEGIN, subjectId: 0, name: 'Begin', duration: -1 },
+  {id: 0, type: TaskType.BEGIN, subjectId: 0, name: 'Begin', duration: 0 },
   {id: 1, type: TaskType.SUBJECT, subjectId: 1, name: 'English', duration: 2 * min },
   {id: 2, type: TaskType.SUBJECT, subjectId: 2, name: 'Math', duration: 2 * min },
   {id: 3, type: TaskType.BREAK, subjectId: 0, name: 'Break', duration: 2 * min },

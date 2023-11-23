@@ -16,11 +16,9 @@ const Action = {
 }
 
 
-function getNextTimerOnState(type, timeLeft, subjectId, optAutoStartNext) {
-  if (type === TaskType.PREP)
-    return true
-  if (timeLeft < 0)
-    return optAutoStartNext
+function getNextTimerOnState(prevSubject, timeLeft, optAutoStartNext) {
+  if (prevSubject?.type === TaskType.BEGIN) return true
+  if (timeLeft < 0) return optAutoStartNext
   return false
 }
 
@@ -35,6 +33,7 @@ export default function ExamTimer() {
     timerOn: false,
     readyTimeLeft: optReadyTime,
     isReadyPhase: optReadyTime > 0,
+    prevSubject: subjects[selectedSubjectId],
   });
   const { timeLeft, timerOn, readyTimeLeft, isReadyPhase } = timerState
 
@@ -42,6 +41,7 @@ export default function ExamTimer() {
   const activeSubject = useMemo(() => subjects[selectedSubjectId], [subjects, selectedSubjectId])
 
   const reducer = useCallback((action) => {
+    console.log("reducer", action)
     const payload = action.payload
     switch(action.type) {
       case Action.TICK_TIME_LEFT:
@@ -59,9 +59,9 @@ export default function ExamTimer() {
       case Action.ACTIVE_SUBJECT_CHANGE:
         return setTimerState(prev => {
           const activeSubject = payload.activeSubject
-          const timerOn = getNextTimerOnState(activeSubject.type, prev.timeLeft, activeSubject.subjectId, optAutoStartNext)
+          const timerOn = getNextTimerOnState(prev.prevSubject, prev.timeLeft, optAutoStartNext)
           const isReadyPhase = (activeSubject.type === TaskType.SUBJECT && optReadyTime>0)
-          return {...prev, timeLeft: activeSubject.duration, timerOn: timerOn, readyTimeLeft: optReadyTime, isReadyPhase: isReadyPhase}
+          return {...prev, prevSubject: activeSubject, timeLeft: activeSubject.duration, timerOn: timerOn, readyTimeLeft: optReadyTime, isReadyPhase: isReadyPhase}
         })
 
       default: return;
@@ -70,6 +70,7 @@ export default function ExamTimer() {
 
   // On Timer On or Off
   useEffect(() => {
+    if (activeSubject.type === TaskType.BEGIN) return
     if (timerOn && isReadyPhase && readyTimeLeft > 0) {
       timeRef.current = setInterval(() => {
         reducer({ type: Action.TICK_READY_TIME_LEFT, payload: null})
@@ -83,7 +84,7 @@ export default function ExamTimer() {
     else clearInterval(timeRef.current);
 
     return () => clearInterval(timeRef.current);
-  }, [isReadyPhase, readyTimeLeft, timeLeft, reducer, timerOn]);
+  }, [activeSubject, isReadyPhase, readyTimeLeft, timeLeft, reducer, timerOn]);
 
   // Switch to exam timer when preparation time is over
   useEffect(() => {
@@ -99,8 +100,8 @@ export default function ExamTimer() {
 
   // On Time Over
   useEffect(() => {
-    if (timeLeft < 0 && activeSubject.type !== TaskType.BEGIN)
-      reducer({type: Action.NEXT_SUBJECT, payload: null})
+    if (timeLeft < 0)
+      reducer({type: Action.NEXT_SUBJECT})
   }, [reducer, timeLeft]);
 
   // On Active Subject Change

@@ -1,19 +1,35 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {ContentWidthDesktop} from "../../util/utils";
 import {styled} from "@mui/material/styles";
 import ScheduleSubject from "./ScheduleSubject";
 import ScheduleBreak from "./ScheduleBreak";
 import {TaskType} from "../../util/examSubjects";
-import {Task} from "@mui/icons-material";
 import ScheduleBegin from "./ScheduleBegin";
 import ScheduleEnd from "./ScheduleEnd";
+import {useRecoilValue} from "recoil";
+import {selectedTaskIdAtom} from "../../recoil/timerState";
 
+const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
 export default function ExamSchedule({schedules}) {
-  const [startX, setStartX] = useState(0); // Track start X position
-  const [scrollStartX, setScrollStartX] = useState(0); // Track scroll start X position
+  const selectedSubjectId = useRecoilValue(selectedTaskIdAtom)
+  const [startX, setStartX] = useState(0);
+  const [scrollStartX, setScrollStartX] = useState(0);
 
   const baseRef = useRef(null);
+
+  const scheduleRefs = useRef([]);
+  const scrollToElement = (index) => {
+    const element = scheduleRefs.current[index];
+    if (element && baseRef.current) {
+      baseRef.current.scrollLeft = element.offsetLeft;
+    }
+  };
+
+  useEffect(() => {
+    scrollToElement(selectedSubjectId);
+  }, [selectedSubjectId, schedules]);
+
 
   function handleWheel(e) {
     if (baseRef.current) {
@@ -36,6 +52,7 @@ export default function ExamSchedule({schedules}) {
     }
   }
 
+
   return (
     <Base ref={baseRef}
           onWheel={handleWheel}
@@ -43,17 +60,15 @@ export default function ExamSchedule({schedules}) {
           onTouchMove={handleTouchMove}
     >
       {
-        schedules.map(schedule => {
+        schedules.map((schedule, index) => {
           if (schedule.type === TaskType.BEGIN)
-            return <ScheduleBegin schedule={schedule} />
-          if (schedule.type === TaskType.PREP)
-            return <ScheduleBreak schedule={schedule}/>
+            return <ScheduleBegin schedule={schedule} ref={el => scheduleRefs.current[index] = el} />
           if (schedule.type === TaskType.SUBJECT)
-            return <ScheduleSubject schedule={schedule}/>
+            return <ScheduleSubject schedule={schedule} ref={el => scheduleRefs.current[index] = el} />
           if (schedule.type === TaskType.BREAK)
-            return <ScheduleBreak schedule={schedule}/>
+            return <ScheduleBreak schedule={schedule} ref={el => scheduleRefs.current[index] = el} />
           else
-            return <ScheduleEnd schedule={schedule}/>
+            return <ScheduleEnd schedule={schedule} ref={el => scheduleRefs.current[index] = el} />
         })
       }
     </Base>
