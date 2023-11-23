@@ -1,11 +1,12 @@
 import React, {useEffect, useRef, useMemo, useCallback, useState} from 'react';
 import { styled } from "@mui/material/styles";
 import ExamSchedule from "./ExamSchedule";
-import {ACTSchedules, TaskType} from '../../util/examSubjects'
+import {TaskType} from '../../util/examSubjects'
 import {selectedTaskIdAtom, selectedExamAtom} from "../../recoil/timerState";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {optAutoStartNextAtom, optReadyTimeAtom} from "../../recoil/settingOptionState";
 import {TimerDisplay} from "./TimerDisplay";
+import ExamTitleSelector from "./ExamTitleSelector";
 
 const Action = {
   TICK_TIME_LEFT: "tick_time_left",
@@ -23,7 +24,7 @@ function getNextTimerOnState(prevSubject, timeLeft, optAutoStartNext) {
 }
 
 export default function ExamTimer() {
-  const subjects = useRecoilValue(selectedExamAtom);
+  const schedules = useRecoilValue(selectedExamAtom);
   const optAutoStartNext = useRecoilValue(optAutoStartNextAtom)
   const optReadyTime = useRecoilValue(optReadyTimeAtom)
   const [selectedSubjectId, setSelectedSubjectId] = useRecoilState(selectedTaskIdAtom);
@@ -33,12 +34,12 @@ export default function ExamTimer() {
     timerOn: false,
     readyTimeLeft: optReadyTime,
     isReadyPhase: optReadyTime > 0,
-    prevSubject: subjects[selectedSubjectId],
+    prevSubject: schedules[selectedSubjectId],
   });
   const { timeLeft, timerOn, readyTimeLeft, isReadyPhase } = timerState
 
   const timeRef = useRef(null)
-  const activeSubject = useMemo(() => subjects[selectedSubjectId], [subjects, selectedSubjectId])
+  const activeSubject = useMemo(() => schedules[selectedSubjectId], [schedules, selectedSubjectId])
 
   const reducer = useCallback((action) => {
     const payload = action.payload
@@ -53,7 +54,7 @@ export default function ExamTimer() {
         return setTimerState(prev => ({...prev, timerOn: !prev.timerOn}));
 
       case Action.NEXT_SUBJECT:
-        return setSelectedSubjectId((prev) => (prev < subjects.length-1)? prev+1 : prev)
+        return setSelectedSubjectId((prev) => (prev < schedules.length-1)? prev+1 : prev)
 
       case Action.ACTIVE_SUBJECT_CHANGE:
         return setTimerState(prev => {
@@ -65,7 +66,7 @@ export default function ExamTimer() {
 
       default: return;
     }
-  }, [optAutoStartNext, setSelectedSubjectId, subjects.length, optReadyTime])
+  }, [optAutoStartNext, setSelectedSubjectId, schedules.length, optReadyTime])
 
   // On Timer On or Off
   useEffect(() => {
@@ -108,11 +109,10 @@ export default function ExamTimer() {
     reducer({type: Action.ACTIVE_SUBJECT_CHANGE, payload: {activeSubject: activeSubject}})
   }, [reducer, activeSubject])
 
+
   return (
     <TimerBase>
-      <ExamTitleBox>
-        <ExamTitle>ACT</ExamTitle>
-      </ExamTitleBox>
+      <ExamTitleSelector/>
       <TimerDisplay
         reducer={reducer}
         action={Action}
@@ -121,7 +121,7 @@ export default function ExamTimer() {
         timerOn={timerOn}
         isReadyPhase={isReadyPhase}
       />
-      <ExamSchedule schedules={ACTSchedules}/>
+      <ExamSchedule schedules={schedules}/>
     </TimerBase>
   )
 }
@@ -133,21 +133,3 @@ const TimerBase = styled('div')({
   flexDirection: 'column',
   alignItems: 'center',
 });
-
-const ExamTitleBox = styled('div')({
-  display:'flex',
-  flex:'0 0 5rem',
-  alignItems:'center',
-  justifyContent:'center',
-  marginTop: '5rem',
-  width:'100%',
-});
-
-const ExamTitle = styled('div')({
-  textAlign:'center',
-  fontSize:'1.6rem',
-  fontWeight:'800',
-  border: '1px solid white',
-  borderRadius: '1rem',
-  padding: '1rem',
-})

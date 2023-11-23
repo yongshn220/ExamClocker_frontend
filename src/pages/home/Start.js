@@ -2,14 +2,15 @@ import LayoutBase from "../components/LayoutBase";
 import {useNavigate} from "react-router-dom";
 import {styled} from "@mui/material/styles";
 import Grid from '@mui/material/Grid';
+import {ExamType} from "../../util/examSubjects";
+
 
 export default function Start() {
   const navigate = useNavigate();
 
-  const handleClick = (examName) => {
-    // Navigate to the respective exam page or perform any action
-    navigate('/home');
-  };
+  function handleClick(examType) {
+    navigate(`/timer/${examType}`);
+  }
 
   return (
     <LayoutBase>
@@ -17,10 +18,10 @@ export default function Start() {
         <IntroText> Select the Exam </IntroText>
         <Grid container spacing={2}>
           <Grid item xs={6}>
-            <Item onClick={() => handleClick('ACT')} >ACT</Item>
+            <Item onClick={() => handleClick(ExamType.ACT)} >ACT</Item>
           </Grid>
           <Grid item xs={6}>
-            <Item onClick={() => handleClick('ACT')} >SAT</Item>
+            <Item onClick={() => handleClick(ExamType.SAT)} >SAT</Item>
           </Grid>
         </Grid>
       </Base>

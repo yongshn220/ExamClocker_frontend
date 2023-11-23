@@ -10,7 +10,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Start/>}/>
-          <Route path="/home" element={<Home/>}/>
+          <Route path="/timer/:examType" element={<Home/>}/>
         </Routes>
       </BrowserRouter>
     </RecoilRoot>

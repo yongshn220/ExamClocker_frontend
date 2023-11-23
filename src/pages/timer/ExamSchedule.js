@@ -59,13 +59,13 @@ export default function ExamSchedule({schedules}) {
       {
         schedules.map((schedule, index) => {
           if (schedule.type === TaskType.BEGIN)
-            return <ScheduleBegin schedule={schedule} ref={el => scheduleRefs.current[index] = el} />
+            return <ScheduleBegin schedule={schedule} ref={el => scheduleRefs.current[index] = el} key={index}/>
           if (schedule.type === TaskType.SUBJECT)
-            return <ScheduleSubject schedule={schedule} ref={el => scheduleRefs.current[index] = el} />
+            return <ScheduleSubject schedule={schedule} ref={el => scheduleRefs.current[index] = el} key={index}/>
           if (schedule.type === TaskType.BREAK)
-            return <ScheduleBreak schedule={schedule} ref={el => scheduleRefs.current[index] = el} />
+            return <ScheduleBreak schedule={schedule} ref={el => scheduleRefs.current[index] = el} key={index}/>
           else
-            return <ScheduleEnd schedule={schedule} ref={el => scheduleRefs.current[index] = el} />
+            return <ScheduleEnd schedule={schedule} ref={el => scheduleRefs.current[index] = el} key={index}/>
         })
       }
     </Base>

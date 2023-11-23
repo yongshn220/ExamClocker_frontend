@@ -2,9 +2,10 @@ import {styled} from "@mui/material/styles";
 import SettingsIcon from '@mui/icons-material/Settings';
 import {useRecoilState} from "recoil";
 import {activatedModalAtom, ModalType} from "../../recoil/modalState";
-import {COLOR} from "../../util/utils"
+import {useNavigate} from "react-router-dom";
 
 export default function HomeHeader() {
+  const navigate = useNavigate()
   const [activatedModalType, setActivatedModalType] = useRecoilState(activatedModalAtom)
 
   function handleSettingClick() {
@@ -16,14 +17,18 @@ export default function HomeHeader() {
     }
   }
 
+  function handleHomeClick() {
+    navigate('/')
+  }
+
   return (
     <Base>
-      <div style={{ borderRadius:'100px', width:'2rem', height:'2rem', marginRight:'0.5rem', padding:'0.2rem'}}>
-        <img src="/ExamticIconWhite.png"  alt="Description" style={{width: '100%', height: '100%', objectFit: 'cover'}}/>
-      </div>
-      <div style={{flex:1}}>
-        ExamTicon.
-      </div>
+      <PageLogo onClick={handleHomeClick}>
+        <MainIcon>
+          <img src="/ExamticIconWhite.png"  alt="Description" style={{width: '100%', height: '100%', objectFit: 'cover'}}/>
+        </MainIcon>
+        <div>Examtic</div>
+      </PageLogo>
       <div style={{flex:0}}>
         <SettingsIcon onClick={handleSettingClick} sx={{fontSize:'2rem', cursor:'pointer'}}/>
       </div>
@@ -40,3 +45,18 @@ const Base = styled('div')({
   fontWeight: '700',
   color: 'white'
 });
+
+const PageLogo = styled('div')({
+  display:'flex',
+  alignItems:'center',
+  flex:1,
+  cursor:'pointer',
+})
+
+const MainIcon = styled('div')({
+  borderRadius:'100px',
+  width:'2rem',
+  height:'2rem',
+  marginRight:'0.5rem',
+  padding:'0.2rem',
+})
