@@ -29,6 +29,7 @@ export default function HomeHeader() {
         </MainIcon>
         <div>ExamClocker</div>
       </PageLogo>
+      <div style={{flex:1}}/>
       <div style={{flex:0}}>
         <SettingsIcon onClick={handleSettingClick} sx={{fontSize:'2rem', cursor:'pointer'}}/>
       </div>
@@ -43,13 +44,15 @@ const Base = styled('div')({
   alignItems:'center',
   fontSize: '1.6rem',
   fontWeight: '700',
+  paddingLeft:'2rem',
+  paddingRight:'2rem',
   color: 'white'
 });
 
 const PageLogo = styled('div')({
   display:'flex',
   alignItems:'center',
-  flex:1,
+  flex:0,
   cursor:'pointer',
 })
 

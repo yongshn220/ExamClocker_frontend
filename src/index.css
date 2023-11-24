@@ -22,6 +22,6 @@ html {
 @media screen and (max-width: 500px) {
   /* Adjust font size for small screens */
   html {
-    font-size: 40%;
+    font-size: 50%;
   }
 }

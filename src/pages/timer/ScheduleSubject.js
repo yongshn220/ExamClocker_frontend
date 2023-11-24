@@ -44,7 +44,7 @@ const Base = styled('div')(({bgColor}) => ({
   justifyContent:'center',
   alignItems:'center',
   height:'70%',
-  aspectRatio: '1.5/1',
+  aspectRatio: '1/1',
   marginLeft:'1rem',
   marginRight:'1rem',
   borderRadius:'3px',

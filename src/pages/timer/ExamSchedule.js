@@ -1,5 +1,4 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ContentWidthDesktop} from "../../util/utils";
 import {styled} from "@mui/material/styles";
 import ScheduleSubject from "./ScheduleSubject";
 import ScheduleBreak from "./ScheduleBreak";
@@ -79,10 +78,13 @@ const Base = styled('div')({
   alignItems: 'center',
   bottom:0,
   marginBottom:'1rem',
-  width: ContentWidthDesktop,
+  width: '100%',
   height: '18vh',
   borderRadius: '8px',
   overflowX: "scroll",
+  paddingLeft: '2rem',
+  paddingRight: '2rem',
+  boxSizing: 'border-box',
 
   // Optional: Simple custom scrollbar for WebKit browsers
   '&::-webkit-scrollbar': {
