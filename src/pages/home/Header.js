@@ -25,9 +25,9 @@ export default function HomeHeader() {
     <Base>
       <PageLogo onClick={handleHomeClick}>
         <MainIcon>
-          <img src="/ExamticIconWhite.png"  alt="Description" style={{width: '100%', height: '100%', objectFit: 'cover'}}/>
+          <img src="/ExamClockerLogoWhite.png" alt="Description" style={{width: '100%', height: '100%', objectFit: 'cover'}}/>
         </MainIcon>
-        <div>Examtic</div>
+        <div>ExamClocker</div>
       </PageLogo>
       <div style={{flex:0}}>
         <SettingsIcon onClick={handleSettingClick} sx={{fontSize:'2rem', cursor:'pointer'}}/>
